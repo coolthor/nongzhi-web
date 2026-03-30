@@ -18,6 +18,7 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [cropType, setCropType] = useState("未知作物");
+  const [userNote, setUserNote] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [meta, setMeta] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -56,6 +57,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append("image", selectedFile);
     formData.append("crop_type", cropType);
+    if (userNote.trim()) formData.append("user_note", userNote.trim());
 
     try {
       const resp = await fetch("/api/diagnosis", {
@@ -127,6 +129,17 @@ export default function Home() {
             </option>
           ))}
         </select>
+      </div>
+
+      <div style={styles.noteSection}>
+        <label style={styles.cropLabel}>補充說明（選填）：</label>
+        <textarea
+          value={userNote}
+          onChange={(e) => setUserNote(e.target.value)}
+          placeholder="例：葉片背面有白色小蟲、最近連續下雨、種了兩個月..."
+          style={styles.textarea}
+          rows={3}
+        />
       </div>
 
       <button
@@ -213,7 +226,23 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     justifyContent: "center",
   },
-  cropLabel: { fontWeight: 600, color: "#3a5a20" },
+  cropLabel: { fontWeight: 600, color: "#3a5a20", fontSize: 15 },
+  noteSection: {
+    marginTop: 16,
+  },
+  textarea: {
+    width: "100%",
+    marginTop: 8,
+    padding: "10px 14px",
+    border: "2px solid #9ab87c",
+    borderRadius: 10,
+    fontSize: 15,
+    fontFamily: "inherit",
+    color: "#2d3a1e",
+    background: "#fff",
+    resize: "vertical" as const,
+    outline: "none",
+  },
   select: {
     padding: "8px 16px",
     border: "2px solid #9ab87c",

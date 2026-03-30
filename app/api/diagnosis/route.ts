@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const image = formData.get("image") as File | null;
   const cropType = (formData.get("crop_type") as string) || "未知作物";
+  const userNote = (formData.get("user_note") as string) || "";
 
   if (!image) {
     return NextResponse.json({ error: "請上傳圖片" }, { status: 400 });
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
         content: [
           {
             type: "text",
-            text: `這是一張${cropType}的照片。請辨識是否有病蟲害，並給出處理建議。`,
+            text: `這是一張${cropType}的照片。請辨識是否有病蟲害，並給出處理建議。${userNote ? `\n\n使用者補充說明：${userNote}` : ""}`,
           },
           {
             type: "image_url",
