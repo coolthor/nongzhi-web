@@ -1,0 +1,12 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, "Noto Sans TC", "Helvetica Neue", sans-serif;
+  background: #f0f4e8;
+  color: #2d3a1e;
+  min-height: 100vh;
+}
