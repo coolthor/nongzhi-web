@@ -26,18 +26,45 @@ export default function Home() {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback((file: File) => {
-    if (file.size > 10 * 1024 * 1024) {
-      setError("檔案太大，最大 10MB");
+  const compressImage = useCallback(
+    (file: File, maxWidth = 1280, quality = 0.8): Promise<File> =>
+      new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ratio = Math.min(1, maxWidth / Math.max(img.width, img.height));
+          canvas.width = img.width * ratio;
+          canvas.height = img.height * ratio;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(
+            (blob) => {
+              resolve(new File([blob!], file.name, { type: "image/jpeg" }));
+            },
+            "image/jpeg",
+            quality
+          );
+        };
+        img.src = URL.createObjectURL(file);
+      }),
+    []
+  );
+
+  const handleFile = useCallback(async (file: File) => {
+    if (file.size > 20 * 1024 * 1024) {
+      setError("檔案太大，最大 20MB");
       return;
     }
-    setSelectedFile(file);
     setError(null);
     setResult(null);
+
+    const compressed = await compressImage(file);
+    setSelectedFile(compressed);
+
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
-    reader.readAsDataURL(file);
-  }, []);
+    reader.readAsDataURL(compressed);
+  }, [compressImage]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -113,7 +140,7 @@ export default function Home() {
         type="file"
         accept="image/jpeg,image/png,image/webp"
         style={{ display: "none" }}
-        onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+        onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
       />
 
       <div style={styles.cropSelect}>
