@@ -27,7 +27,7 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const compressImage = useCallback(
-    (file: File, maxWidth = 1280, quality = 0.8): Promise<File> =>
+    (file: File, maxWidth = 1024, quality = 0.7): Promise<File> =>
       new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
